@@ -1,8 +1,13 @@
 from rest_framework import serializers
-from .models import SongsLibrary
+from .models import TrackModel
 
 
 class SavedTracksSerializer(serializers.ModelSerializer):
     class Meta:
-        model = SongsLibrary
-        fields = ['id', 'title', 'artist', 'added']
+        model = TrackModel
+        fields = ['id', 'title', 'artist', 'album', 'added']
+
+
+class GroupedTracksSerializer(serializers.Serializer):
+    grouping_key = serializers.CharField()
+    tracks = SavedTracksSerializer(many=True)

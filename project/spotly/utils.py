@@ -1,7 +1,7 @@
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 from datetime import datetime
-from .models import SongsLibrary
+from .models import TrackModel
 
 
 def get_all_saved_tracks(limit_step=50):
@@ -24,11 +24,39 @@ def get_all_saved_tracks(limit_step=50):
             count += 1
             added_at = datetime.strptime(track['added_at'], '%Y-%m-%dT%H:%M:%SZ')
             formatted_date = added_at.strftime('%d-%B-%Y, %H:%M')
-            tracks.append(SongsLibrary(id=count,
-                                       title=track['track']['name'],
-                                       artist=track['track']['artists'][0]['name'],
-                                       added=formatted_date))
+            tracks.append(TrackModel(id=count,
+                                     title=track['track']['name'],
+                                     artist=track['track']['artists'][0]['name'],
+                                     album=track['track']['album']['name'],
+                                     added=formatted_date))
             print(f"finished fetching {count} tracks")
 
     # print(f"You have {count} saved songs!")
     return tracks
+
+def get_saved_tracks_grouped_by_artist(limit_step=50):
+    saved_tracks = get_all_saved_tracks()
+    grouped_tracks = {}
+
+    for track in saved_tracks:
+        if track.artist not in grouped_tracks:
+            grouped_tracks[track.artist] = list()
+        grouped_tracks[track.artist].append(track)
+
+    return grouped_tracks
+
+def get_saved_tracks_grouped_by_album(limit_step=50):
+    saved_tracks = get_all_saved_tracks()
+    grouped_tracks = {}
+
+    for track in saved_tracks:
+        if track.album not in grouped_tracks:
+            grouped_tracks[track.album] = list()
+        grouped_tracks[track.album].append(track)
+
+    return grouped_tracks
+
+if __name__ == '__main__':
+    saved_tracks = get_all_saved_tracks()
+
+    pass
