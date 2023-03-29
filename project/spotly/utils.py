@@ -18,17 +18,17 @@ def get_all_saved_tracks(limit_step=50):
         if len(response['items']) == 0:
             break
         for track in response['items']:
-            # tracks.append({'name': track['track']['name'],
-            #                'artist': track['track']['artists'][0]['name'],
-            #                'added_at': track['added_at']})
             count += 1
             added_at = datetime.strptime(track['added_at'], '%Y-%m-%dT%H:%M:%SZ')
             formatted_date = added_at.strftime('%d-%B-%Y, %H:%M')
-            tracks.append(TrackModel(id=count,
+            new_track = (TrackModel(id=count,
                                      title=track['track']['name'],
                                      artist=track['track']['artists'][0]['name'],
                                      album=track['track']['album']['name'],
                                      added=formatted_date))
+
+            new_track.save()
+            tracks.append(new_track)
             print(f"finished fetching {count} tracks")
 
     # print(f"You have {count} saved songs!")

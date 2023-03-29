@@ -8,9 +8,22 @@ from .utils import get_all_saved_tracks, get_saved_tracks_grouped_by_artist, get
 
 class LikedSongsView(generics.ListAPIView):
     serializer_class = SavedTracksSerializer
-
     def get_queryset(self):
         groupby = self.request.query_params.get('groupby', None)
+        if groupby in ['artist', 'album']:
+            pass
+
+        else:
+            saved_tracks = get_all_saved_tracks()
+            queryset = TrackModel.objects.filter(id__in=[t.id for t in saved_tracks])
+            serializer = SavedTracksSerializer(queryset, many=True)
+            return serializer.data
+
+
+class GroupedTracksView(generics.ListAPIView):
+    serializer_class = GroupedTracksSerializer
+    def get_queryset(self):
+        groupby = self.kwargs.get('groupby', None)
         if groupby in ['artist', 'album']:
             if groupby == 'artist':
                 grouped_tracks = get_saved_tracks_grouped_by_artist()
@@ -25,22 +38,5 @@ class LikedSongsView(generics.ListAPIView):
                 queryset |= TrackModel.objects.filter(id__in=[t.id for t in tracks])
 
             serializer = GroupedTracksSerializer(
-                [{'grouping_key': groupby, 'tracks': tracks} for _, tracks in grouped_tracks.items()], many=True)
-            return Response(serializer.data)
-
-        else:
-            saved_tracks = get_all_saved_tracks()
-            serializer = SavedTracksSerializer(saved_tracks, many=True)
-            queryset = TrackModel.objects.filter(id__in=[t.id for t in saved_tracks])
-            return queryset
-
-
-class GroupedTracksView(APIView):
-    def get(self, request):
-        grouped_tracks = get_saved_tracks_grouped_by_artist()
-        grouped_tracks = dict(sorted(grouped_tracks.items(), key=lambda x: len(x[1]), reverse=True))
-        # Serialize the grouped tracks
-        serializer = GroupedTracksSerializer(
-            [{'grouping_key': artist, 'tracks': tracks} for artist, tracks in grouped_tracks.items()], many=True)
-
-        return Response(serializer.data)
+                [{'grouping_key': getattr(tracks[0], groupby), 'tracks': tracks} for _, tracks in grouped_tracks.items()], many=True)
+            return serializer.data
