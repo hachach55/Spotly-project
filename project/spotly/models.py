@@ -17,6 +17,14 @@ class PlaylistModel(models.Model):
     playlist_id = models.CharField(max_length=100, blank=True, default='')
     name = models.CharField(max_length=100, blank=True, default='')
     total_tracks = models.CharField(max_length=100, blank=True, default='')
+
+    def __str__(self):
+        return str(self.name)
+
+class DetailedPlaylistModel(models.Model):
+    playlist_id = models.CharField(max_length=100, blank=True, default='')
+    name = models.CharField(max_length=100, blank=True, default='')
+    total_tracks = models.CharField(max_length=100, blank=True, default='')
     tracks = models.ManyToManyField(TrackModel, related_name='playlists')
 
     def __str__(self):

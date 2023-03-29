@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import TrackModel, PlaylistModel
+from .models import TrackModel, DetailedPlaylistModel, PlaylistModel
 
 
 class SavedTracksSerializer(serializers.ModelSerializer):
@@ -14,10 +14,16 @@ class GroupedTracksSerializer(serializers.Serializer):
 
 
 class PlaylistSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PlaylistModel
+        fields = ['name', 'total_tracks']
+
+
+class DetailedPlaylistSerializer(serializers.ModelSerializer):
     tracks = SavedTracksSerializer(many=True)
 
     class Meta:
-        model = PlaylistModel
+        model = DetailedPlaylistModel
         fields = ['name', 'total_tracks', 'tracks']
 
     def create(self, validated_data):

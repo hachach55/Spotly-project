@@ -2,7 +2,7 @@ import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 from datetime import datetime
 
-from .models import TrackModel, PlaylistModel
+from .models import TrackModel, DetailedPlaylistModel
 
 
 def get_all_saved_tracks(limit_step=50):
@@ -76,10 +76,10 @@ def get_user_playlists(limit_step=50, public_only=True):
             break
         for playlist in response['items']:
             if playlist['owner']['id'] == user_id['id'] and playlist['public'] == public_only:
-                new_playlist = PlaylistModel(playlist_id=playlist['id'],
-                                             name=playlist['name'],
-                                             total_tracks=playlist['tracks']['total'],
-                                             )
+                new_playlist = DetailedPlaylistModel(playlist_id=playlist['id'],
+                                                     name=playlist['name'],
+                                                     total_tracks=playlist['tracks']['total'],
+                                                     )
                 new_playlist.save()
                 playlists.append(new_playlist)
 

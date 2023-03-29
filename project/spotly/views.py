@@ -1,8 +1,8 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import generics
-from .models import TrackModel
-from .serializers import SavedTracksSerializer, GroupedTracksSerializer, PlaylistSerializer
+from .models import TrackModel, PlaylistModel
+from .serializers import SavedTracksSerializer, GroupedTracksSerializer, DetailedPlaylistSerializer, PlaylistSerializer
 from .utils import *
 
 class LikedSongsView(generics.ListAPIView):
@@ -45,9 +45,18 @@ class PlaylistsView(generics.ListAPIView):
     serializer_class = PlaylistSerializer
 
     def get_queryset(self):
-        # playlists = get_user_playlists()
-        playlists = get_playlists_tracks()
+        playlists = get_user_playlists()
         queryset = PlaylistModel.objects.filter(id__in=[t.id for t in playlists])
         serializer = PlaylistSerializer(queryset, many=True)
+        return serializer.data
+
+class DetailedPlaylistsView(generics.ListAPIView):
+    serializer_class = DetailedPlaylistSerializer
+
+    def get_queryset(self):
+        # playlists = get_user_playlists()
+        playlists = get_playlists_tracks()
+        queryset = DetailedPlaylistModel.objects.filter(id__in=[t.id for t in playlists])
+        serializer = DetailedPlaylistSerializer(queryset, many=True)
         return serializer.data
 
