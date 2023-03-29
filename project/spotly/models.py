@@ -11,3 +11,12 @@ class TrackModel(models.Model):
 
     def __str__(self):
         return str(self.title) + '-' + str(self.artist)
+
+
+class PlaylistModel(models.Model):
+    playlist_id = models.CharField(max_length=100, blank=True, default='')
+    name = models.CharField(max_length=100, blank=True, default='')
+    total_tracks = models.CharField(max_length=100, blank=True, default='')
+
+    def __str__(self):
+        return str(self.name)
