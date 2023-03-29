@@ -23,10 +23,10 @@ def get_all_saved_tracks(limit_step=50):
             added_at = datetime.strptime(track['added_at'], '%Y-%m-%dT%H:%M:%SZ')
             formatted_date = added_at.strftime('%d-%B-%Y, %H:%M')
             new_track = TrackModel(id=count,
-                                    title=track['track']['name'],
-                                    artist=track['track']['artists'][0]['name'],
-                                    album=track['track']['album']['name'],
-                                    added=formatted_date)
+                                   title=track['track']['name'],
+                                   artist=track['track']['artists'][0]['name'],
+                                   album=track['track']['album']['name'],
+                                   added=formatted_date)
 
             new_track.save()
             tracks.append(new_track)
@@ -76,9 +76,10 @@ def get_user_playlists(limit_step=50, public_only=True):
             break
         for playlist in response['items']:
             if playlist['owner']['id'] == user_id['id'] and playlist['public'] == public_only:
-                new_playlist = PlaylistModel(name=playlist['name'],
+                new_playlist = PlaylistModel(playlist_id=playlist['id'],
+                                             name=playlist['name'],
                                              total_tracks=playlist['tracks']['total'],
-                                             playlist_id=playlist['id'])
+                                             )
                 new_playlist.save()
                 playlists.append(new_playlist)
 
@@ -91,23 +92,26 @@ def get_playlists_tracks(limit_step=100):
                                                      redirect_uri="http://localhost:8080",
                                                      scope='user-library-read'))
     playlists = get_user_playlists()
+
     for playlist in playlists:
+
         tracks = list()
         for offset in range(0, 10000000, limit_step):
-            response = user.playlist_items(playlist['playlist_id'], limit=limit_step, offset=offset)
+            response = user.playlist_items(playlist.playlist_id, limit=limit_step, offset=offset)
             if len(response['items']) == 0:
                 break
             for track in response['items']:
                 added_at = datetime.strptime(track['added_at'], '%Y-%m-%dT%H:%M:%SZ')
                 formatted_date = added_at.strftime('%d-%B-%Y, %H:%M')
-                tracks.append({'title': track['track']['name'],
-                               'artist': ', '.join([artist['name'] for artist in track['track']['artists']]),
-                               'album': track['track']['album'],
-                               'added_at': formatted_date
-                               })
+                new_track = TrackModel(title=track['track']['name'],
+                                       artist=', '.join([artist['name'] for artist in track['track']['artists']]),
+                                       album=track['track']['album']['name'],
+                                       added=formatted_date)
+                new_track.save()
+                tracks.append(new_track)
 
-        playlist['tracks'] = tracks
-        print('finished fetching tracks for playlist: ', playlist['name'])
+        playlist.tracks.add(*tracks)
+        print('finished fetching tracks for playlist: ', playlist.name)
 
     return playlists
 

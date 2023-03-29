@@ -45,7 +45,8 @@ class PlaylistsView(generics.ListAPIView):
     serializer_class = PlaylistSerializer
 
     def get_queryset(self):
-        playlists = get_user_playlists()
+        # playlists = get_user_playlists()
+        playlists = get_playlists_tracks()
         queryset = PlaylistModel.objects.filter(id__in=[t.id for t in playlists])
         serializer = PlaylistSerializer(queryset, many=True)
         return serializer.data

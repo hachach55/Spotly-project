@@ -14,6 +14,23 @@ class GroupedTracksSerializer(serializers.Serializer):
 
 
 class PlaylistSerializer(serializers.ModelSerializer):
+    tracks = SavedTracksSerializer(many=True)
+
     class Meta:
         model = PlaylistModel
-        fields = ['id', 'name', 'total_tracks']
+        fields = ['name', 'total_tracks', 'tracks']
+
+    def create(self, validated_data):
+        tracks_data = validated_data.pop('tracks', [])
+        playlist = super().create(validated_data)
+        for track_data in tracks_data:
+            TrackModel.objects.create(playlist=playlist, **track_data)
+        return playlist
+
+    def update(self, instance, validated_data):
+        tracks_data = validated_data.pop('tracks', [])
+        playlist = super().update(instance, validated_data)
+        playlist.tracks.all().delete()
+        for track_data in tracks_data:
+            TrackModel.objects.create(playlist=playlist, **track_data)
+        return playlist
