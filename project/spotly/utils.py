@@ -7,7 +7,7 @@ from .models import TrackModel, DetailedPlaylistModel
 
 def get_all_saved_tracks(limit_step=50):
     user = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id='8fffefe586fa4711ae28c0f0ea3c5084',
-                                                     client_secret='10a514b5df1f4663bed5b0a446e2b153',
+                                                     client_secret='classified',
                                                      redirect_uri="http://localhost:8080",
                                                      scope='user-library-read'))
     tracks = list()
